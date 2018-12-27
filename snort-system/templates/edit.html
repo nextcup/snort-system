@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <title>规则详情</title> 
+ </head> 
+ <body> 
+  <table> 
+   <tbody>
+    <tr> 
+     <td><font></font>规则ID：</td> 
+     <td><input type="text" name="sid" value="{{rule.sid}}" style="width: 400px" /></td> 
+    </tr> 
+    <tr> 
+     <td><font></font>描述信息：</td> 
+     <td><textarea name="msg" style="width: 400px">{{rule.msg}}</textarea></td> 
+    </tr> 
+    <tr> 
+     <td><font></font>引用信息：</td> 
+     <td><textarea name="reference" style="width: 400px">{{rule.reference}}</textarea></td> 
+    </tr> 
+    <tr> 
+     <td><font></font>类型：</td> 
+     <td><input type="text" name="class_type" value="{{rule.class_type}}" style="width: 400px" /></td> 
+    </tr> 
+    <tr> 
+     <td align="center"><input type="submit" name="submit" value="确定" onclick="shield()" /></td> 
+    </tr> 
+   </tbody>
+  </table>  
+ </body>
+</html>

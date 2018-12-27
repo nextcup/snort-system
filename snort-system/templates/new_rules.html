@@ -1,0 +1,201 @@
+<html>
+ <head></head>
+ <body>
+  {% load staticfiles %}    
+  <title>新增规则</title> 
+  <meta charset="UTF-8" /> 
+  <link rel="stylesheet" href="{% static 'css/amazeui.min.css' %}" /> 
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" /> 
+  <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script> 
+  <script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>   
+  <div> 
+   <select style="float: left;" id="options"> <option value="tcp">tcp</option> <option value="http">http</option> </select> 
+  </div>
+  <select style="float: left;" id="flow_options"> <option value="to_server,established">to_server,established</option> <option value="to_client,established">to_client,established</option> </select>
+  <div align="center"> 
+  </div>
+  <table> 
+   <tbody>
+    <tr> 
+     <td style="color: green"><font></font>src_ip: </td> 
+     <td><input type="text" name="src_ip" style="width: 300px ;color: green" id="src_ip" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>src_port: </td> 
+     <td><input type="text" name="src_port" style="width: 300px ;color: green" id="src_port" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>dst_ip: </td> 
+     <td><input type="text" name="dst_ip" style="width: 300px ;color: green" id="dst_ip" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>dst_port: </td> 
+     <td><input type="text" name="dst_port" style="width: 300px ;color: green" id="dst_port" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>msg: </td> 
+     <td><textarea type="text" name="msg" style="width: 300px ;height: 30px;color: green" id="msg"></textarea> </td> 
+    </tr>  
+    <tr> 
+     <td style="color: green"><font></font>content:</td> 
+     <td> <input type="text" name="content" style="width: 300px ;color: green" id="content" /> </td> 
+     <td> <input type="submit" value="添加" id="add_content" onclick="add_content()" /> </td> 
+    </tr> 
+    <tr> 
+     <td><input type="text" name="distance" style="width: 50px;" id="distance" /></td> 
+     <td><input type="checkbox" name="checkbox" value="distance" />distance</td> 
+    </tr> 
+    <tr> 
+     <td><input type="text" name="offset" style="width: 50px;" id="offset" /></td> 
+     <td width="100px"><input type="checkbox" name="checkbox" value="offset" />offset</td> 
+    </tr> 
+    <tr> 
+     <td><input type="text" name="nocase" style="width: 50px;" id="nocase" /></td> 
+     <td><input type="checkbox" name="nocase" value="nocase" />nocase(true/false)</td> 
+    </tr> 
+    <tr> 
+     <td><input type="text" name="depth" style="width: 50px;" id="depth" /></td> 
+     <td><input type="checkbox" name="checkbox" value="depth" />depth</td> 
+    </tr> 
+    <tr> 
+     <td><input type="text" name="within" style="width: 50px;" id="within" /></td> 
+     <td><input type="checkbox" name="checkbox" value="within" />within</td> 
+     <!-- <td><input type="checkbox" name="checkbox" value="within" />within</td> -->
+    </tr> 
+
+    <tr> 
+     <td style="color: green"><font></font>pcre:</td> 
+     <td><input type="text" name="pcre" style="width: 300px ;color: green" id="pcre" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>reference: </td> 
+     <td><textarea type="text" name="reference" style="width: 300px ;height: 30px;color: green" id="reference"></textarea> </td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>rev:</td> 
+     <td><input type="text" name="rev" style="width: 300px ;color: green" id="rev" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>classtype:</td> 
+     <td><input type="text" name="classtype" style="width: 300px ;color: green" id="classtype" /></td> 
+    </tr>  
+    <tr> 
+        <td></td>
+        <td></td>
+     <td> <input type="submit" name="submit" value="提交" id="add_rule" onclick="add()" /> </td> 
+    </tr>  
+   </tbody>
+  </table> 
+  <script type="text/javascript" src="{% static 'js/jquery-1.11.3.min.js' %}"></script> 
+  <script type="text/javascript" src="{% static 'myplugs/js/plugs.js' %}"></script> 
+  <!-- 获取input值 --> 
+  <script type="text/javascript">
+        function add(){
+            var data_dict = {}
+            var id_arr = ["src_ip","src_port","dst_ip","dst_port", "msg","content","reference","rev","classtype","offset", "depth", "nocase", "distance", "within","pcre"]
+            $.each($('input:checkbox'),function(){
+                if(this.checked){
+                    id = $(this).val()
+                    if(id!=""){
+                        id_arr.push(id)
+                    }
+                }
+            });
+
+            for (var i = id_arr.length - 1; i >= 0; i--) {
+                data_dict[id_arr[i]] = get_input_val(id_arr[i])
+            }
+
+            var myselect=document.getElementById("options");
+            var index=myselect.selectedIndex;
+            var value = myselect.options[index].value;
+            id_arr.push("protocol")
+            data_dict["protocol"] = value
+
+            var myselect=document.getElementById("flow_options");
+            var index=myselect.selectedIndex;
+            var value = myselect.options[index].value;
+            id_arr.push("flow")
+            data_dict["flow"] = value
+
+            for (var key in data_dict) {
+                if(data_dict[key]==""){
+                    delete data_dict[key]
+                }
+            }
+            $.post("/backstage/rules/add_submit",{'data':JSON.stringify(data_dict),'csrfmiddlewaretoken':'{{csrf_token}}'}, function(data){
+                if(data==1){
+                    alert("规则支持,添加成功!")
+                }else if(data==0){
+                    alert('规则添加失败!')
+                }else if(data==2){
+                    alert('系统不支持此规则!')
+                }else if(data==3){
+                    alert('请先点击添加content再提交!')
+                }else if(data==4)
+                {
+                    alert('未填写任何内容!')
+                }
+            });
+        }
+    </script> 
+  <script type="text/javascript">
+        function get_input_val(data){
+            var val = document.getElementById(data).value;
+            return val
+        }
+    </script> 
+  <script type="text/javascript">
+        function add_content(){
+            var content_list = ["content"]
+            var content_data = {}
+            $.each($('input:checkbox'),function(){
+                if(this.checked){
+                    id = $(this).val()
+                    if(id!==""){
+                        content_list.push(id)
+                    }
+                }
+             });
+
+            if(get_input_val(content_list[0])==""){
+                if(content_list.length>1){
+                    alert("content为空但其选项不为空,失败!")
+                    return
+                }else{
+                    alert('未添加content内容及其选项!')
+                    return
+                }
+                
+            }
+
+            var start_content = ""
+            var option_str = ""
+            for (var i = content_list.length - 1; i >= 0; i--) {
+                if(content_list[i]=="content"){
+                    content_data["content"] = content_list[i] + ':"' + get_input_val(content_list[i]) + '";'
+                    }else{
+                        if(get_input_val(content_list[i])=="true"){
+                            option_str += content_list[i] + ';' 
+                        }else if(get_input_val(content_list[i])=="false"){
+                            option_str += ""
+                        }else{
+                            option_str += content_list[i] + ':' + get_input_val(content_list[i]) + ';'
+                        }
+                        
+                }
+                content_data["content"] += option_str
+            }
+
+            $.post("/backstage/add/content",{'another_content':JSON.stringify(content_data), 'status':'success', 'csrfmiddlewaretoken':'{{csrf_token}}'}, function(data){
+                if(data==1){
+                    alert("成功添加一组content!")
+                }
+            });
+
+        }
+    </script>  
+ </body>
+</html>

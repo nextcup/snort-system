@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+ <head></head>
+ <body>
+   {% load staticfiles %}   
+  <title>规则详情</title> 
+  <meta charset="UTF-8" /> 
+  <table> 
+   <tbody>
+    <tr> 
+     <td style="color: green"><font></font>规则ID：</td> 
+     <td><input type="text" id="sid" value="{{rule.sid}}" style="width: 400px ;color: green" disabled="disabled" /></td> 
+     <td style="color: green"><font></font>规则ID：</td> 
+     <td><input type="text" id="sid" value="{{sid}}" style="width: 400px ;color: green" disabled="disabled" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>描述信息：</td> 
+     <td><textarea id="msg" style="width: 400px;height: 30px; color: green">{{rule.msg}}</textarea></td> 
+     <td style="color: green"><font></font>描述信息：</td> 
+     <td><textarea id="new_msg" style="width: 400px;height: 30px; color: green">{{msg}}</textarea></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>引用信息：</td> 
+     <td><textarea id="reference" style="width: 400px;height: 30px; color: green">{{rule.reference}}</textarea></td> 
+     <td style="color: green"><font></font>引用信息：</td> 
+     <td><textarea id="new_reference" style="width: 400px;height: 30px; color: green">{{reference}}</textarea></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>匹配内容：</td> 
+     <td><textarea id="content" style="width: 400px;height: 30px; color: green">{{rule.content}}</textarea></td> 
+     <td style="color: green"><font></font>匹配内容：</td> 
+     <td><textarea id="new_content" style="width: 400px;height: 30px; color: green">{{content}}</textarea></td> 
+    </tr> 
+    <tr> 
+     <td style="color: green"><font></font>类型：</td> 
+     <td><input type="text" id="class_type" value="{{rule.class_type}}" style="width: 400px;color: green" /></td> 
+     <td style="color: green"><font></font>类型：</td> 
+     <td><input type="text" id="new_class_type" value="{{class_type}}" style="width: 400px;color: green" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>家族名称：</td> 
+     <td><input type="text" id="malname" value="{{rule.malname}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>家族名称：</td> 
+     <td><input type="text" id="new_malname" value="{{rule.malname}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>攻击者：</td> 
+     <td><input type="text" id="attacker" value="{{rule.attacker}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>攻击者：</td> 
+     <td><input type="text" id="new_attacker" value="{{rule.attacker}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>受害者：</td> 
+     <td><input type="text" id="victim" value="{{rule.victim}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>受害者：</td> 
+     <td><input type="text" id="new_victim" value="{{rule.victim}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>成功攻击：</td> 
+     <td><input type="text" id="success" value="{{rule.success_attack}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>成功攻击：</td> 
+     <td><input type="text" id="new_success" value="{{rule.success_attack}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>控制源：</td> 
+     <td><input type="text" id="controller" value="{{rule.controller}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>控制源：</td> 
+     <td><input type="text" id="new_controller" value="{{rule.controller}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>确认被控：</td> 
+     <td><input type="text" id="confirm" value="{{rule.confirm_controlled}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>确认被控：</td> 
+     <td><input type="text" id="new_confirm" value="{{rule.confirm_controlled}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>修订版本：</td> 
+     <td><input type="text" id="rev" value="{{rule.rev}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>修订版本：</td> 
+     <td><input type="text" id="new_rev" value="{{rule.rev}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>知识库信息：</td> 
+     <td><input type="text" id="knowledge" value="{{rule.knowledge_base}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>知识库信息：</td> 
+     <td><input type="text" id="new_knowledge" value="{{rule.knowledge_base}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>是否屏蔽：</td> 
+     <td><input type="text" id="shield" value="{{rule.shield}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>是否屏蔽：</td> 
+     <td><input type="text" id="new_shield" value="{{rule.shield}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>出库包含：</td> 
+     <td><input type="text" id="contain" value="{{rule.contain}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>出库包含：</td> 
+     <td><input type="text" id="new_contain" value="{{rule.contain}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>首次检出时间：</td> 
+     <td><input type="text" id="first_check_time" value="{{rule.first_check_time}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>首次检出时间：</td> 
+     <td><input type="text" id="new_first_check_time" value="{{rule.first_check_time}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>首次检出位置：</td> 
+     <td><input type="text" id="first_check_position" value="{{rule.first_check_position}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>首次检出位置：</td> 
+     <td><input type="text" id="new_first_check_position" value="{{rule.first_check_position}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>整体检出时间：</td> 
+     <td><input type="text" id="overall_first_check_time" value="{{rule.overall_first_check_time}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>整体检出时间：</td> 
+     <td><input type="text" id="new_overall_first_check_time" value="{{rule.overall_first_check_time}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>整体检出位置：</td> 
+     <td><input type="text" id="overall_first_check_position" value="{{rule.overall_first_check_position}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>整体检出位置：</td> 
+     <td><input type="text" id="new_overall_first_check_position" value="{{rule.overall_first_check_position}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>检出个数：</td> 
+     <td><input type="text" id="check_out_numbers" value="{{rule.check_out_numbers}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>检出个数：</td> 
+     <td><input type="text" id="new_check_out_numbers" value="{{rule.check_out_numbers}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>误报个数：</td> 
+     <td><input type="text" id="error_numbers" value="{{rule.error_numbers}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>误报个数：</td> 
+     <td><input type="text" id="new_error_numbers" value="{{rule.error_numbers}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>特征来源：</td> 
+     <td><input type="text" id="feature_source" value="{{rule.feature_source}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>特征来源：</td> 
+     <td><input type="text" id="new_feature_source" value="{{rule.feature_source}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td style="color: blue"><font></font>备注：</td> 
+     <td><input type="text" id="remarks" value="{{rule.remarks}}" style="width: 400px;color: blue" /></td> 
+     <td style="color: blue"><font></font>备注：</td> 
+     <td><input type="text" id="new_remarks" value="{{rule.remarks}}" style="width: 400px;color: blue" /></td> 
+    </tr> 
+    <tr> 
+     <td></td> 
+     <td align="center"><button onclick="use_old()">使用原规则</button></td> 
+     <td></td> 
+     <td align="center"><button onclick="use_new()">使用新规则</button></td> 
+    </tr> 
+   </tbody>
+  </table> 
+  <script type="text/javascript" src="{% static 'js/jquery-1.11.3.min.js' %}"></script> 
+  <script type="text/javascript" src="{% static 'myplugs/js/plugs.js' %}"></script> 
+  <script type="text/javascript">
+    function use_old(){
+        var arr = new Array();
+        var id_arr = new Array("sid","msg","reference","class_type","malname","attacker","victim",
+            "success","controller","confirm","rev","knowledge","shield","contain",
+            "first_check_position","overall_first_check_position","check_out_numbers",
+            "error_numbers","feature_source","remarks","content")
+
+        for(var i = 0,len = id_arr.length; i < len; i++){
+            arr.push(get_input_val(id_arr[i]))
+        }
+        console.log(arr)
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/backstage/rules/edit",
+            traditional:true,  //加上此项可以传数组
+            dataType:'json',
+            async: true,
+            data:{'data': arr, 'flag':"conflict_flag"},
+            success: function(data) {
+                if (data == 1) {
+                    alert('成功!')
+                }else if(data==0){
+                    alert('失败!')
+                }
+            }
+        });
+    }
+</script> 
+  <script type="text/javascript">
+    function use_new(){
+        var arr = new Array();
+        var id_arr = new Array("new_sid","new_msg","new_reference","new_class_type","new_malname","new_attacker","new_victim",
+            "new_success","new_controller","new_confirm","new_rev","new_knowledge","new_shield","new_contain",
+            "new_first_check_position","new_overall_first_check_position","new_check_out_numbers",
+            "new_error_numbers","new_feature_source","new_remarks","new_content")
+
+        for(var i = 0,len = id_arr.length; i < len; i++){
+            arr.push(get_input_val(id_arr[i]))
+        }
+        console.log(arr)
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/backstage/conflict/deal_conflict",
+            traditional:true,  //加上此项可以传数组
+            dataType:'json',
+            async: true,
+            data:{'data': arr, 'flag':"conflict_flag"},
+            success: function(data) {
+                if (data == 1) {
+                    alert('成功!')
+                }else if(data==0){
+                    alert('失败!')
+                }
+            }
+        });
+    }
+</script> 
+  <script type="text/javascript">
+    function get_input_val(data){
+        var val = document.getElementById(data).value;
+        return val
+    }
+</script>  
+ </body>
+</html>

@@ -1,0 +1,31 @@
+<html>
+ <head></head>
+ <body>
+  {% load staticfiles %}    
+  <title>翻译规则</title>   
+  <table> 
+   <tbody>
+    <tr> 
+     <td><textarea name="new_rule" style="width: 370px;height:150px;" id="rule"></textarea></td> 
+    </tr> 
+    <tr> 
+     <td align="center"><input type="submit" name="submit" value="提交" onclick="submit_trans()" /></td> 
+    </tr> 
+   </tbody>
+  </table> 
+  <script type="text/javascript" src="{% static 'js/jquery-1.11.3.min.js' %}"></script> 
+  <script type="text/javascript" src="{% static 'myplugs/js/plugs.js' %}"></script> 
+  <script type="text/javascript">
+        function submit_trans(){
+            var txt = document.getElementById('rule').value;
+            $.post("/backstage/untranslate/trans_submit",{'msg':txt,'csrfmiddlewaretoken':'{{csrf_token}}'}, function(data){
+                if(data==1){
+                    alert("规则翻译成功!")
+                }else{
+                    alert('规则翻译失败!')
+                }
+            });
+            }
+    </script>  
+ </body>
+</html>

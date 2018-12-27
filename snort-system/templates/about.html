@@ -1,0 +1,148 @@
+<html>
+ <head></head>
+ <body>
+  {% load staticfiles %}    
+  <title>关于</title> 
+  <meta charset="UTF-8" /> 
+  <link rel="stylesheet" href="{% static 'css/amazeui.min.css' %}" /> 
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" /> 
+  <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script> 
+  <script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>   
+  <dir> 
+   <dir> 
+    <table class="table table-hover"> 
+     <tbody>
+      <tr>
+       <td></td>
+      </tr> 
+      <tr>
+       <td></td>
+      </tr> 
+      <tr>
+       <td></td>
+      </tr> 
+      <tr>
+       <td></td>
+      </tr> 
+      <tr>
+       <td>说明</td>
+       <td>功能</td>
+      </tr> 
+      <tr>
+       <td>snort规则管理系统</td>
+       <td>用于管理特征的系统</td>
+      </tr> 
+      <tr>
+       <td>特征概要</td>
+       <td>显示snort规则概要特征以及详细特征,可编辑修改,同时可以添加、屏蔽、搜索规则。</td>
+      </tr> 
+      <tr>
+       <td>特征概要-检测</td>
+       <td>对指定规则上传pcap包用于检测,命中规则的pcap文件将被上传到服务器指定目录。</td>
+      </tr> 
+      <tr>
+       <td>特征概要-下载</td>
+       <td>下载指定规则命中的pcap文件到本地。</td>
+      </tr> 
+      <tr>
+       <td>规则操作-删除</td>
+       <td>将服务器指定目录下规则对应的pcap删除。</td>
+      </tr> 
+      <tr>
+       <td>规则操作-规则出库</td>
+       <td>将系统中设置为出库包含的规则导出到本地,打包文件包括规则文件和特征文件。</td>
+      </tr> 
+      <tr>
+       <td>冲突列表</td>
+       <td>显示系统中存在冲突的规则列表，并可以对比解决冲突。</td>
+      </tr> 
+      <tr>
+       <td>未翻译列表</td>
+       <td>显示系统中未翻译的规则列表，并可以进行翻译并保存。</td>
+      </tr> 
+      <tr>
+       <td>系统日志</td>
+       <td>记录了系统使用人员的行为信息，包括从注册进入系统、对规则的操作后离开系统整个过程。</td>
+      </tr> 
+      <tr>
+       <td>关于</td>
+       <td>对系统主要功能进行了简介。</td>
+      </tr> 
+     </tbody>
+    </table> 
+   </dir> 
+  </dir> 
+  <script type="text/javascript">
+		            //鼠标点击出现爱心特效
+		(function(window,document,undefined){
+			var hearts = [];
+			window.requestAnimationFrame = (function(){
+				return window.requestAnimationFrame ||
+				window.webkitRequestAnimationFrame ||
+				window.mozRequestAnimationFrame ||
+				window.oRequestAnimationFrame ||
+				window.msRequestAnimationFrame ||
+				function (callback){
+					setTimeout(callback,1000/60);
+				}
+			})();
+			init();
+			function init(){
+				css(".heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+				attachEvent();
+				gameloop();
+			}
+			function gameloop(){
+				for(var i=0;i<hearts.length;i++){
+					if(hearts[i].alpha <=0){
+						document.body.removeChild(hearts[i].el);
+						hearts.splice(i,1);
+						continue;
+					}
+					hearts[i].y--;
+					hearts[i].scale += 0.004;
+					hearts[i].alpha -= 0.013;
+					hearts[i].el.style.cssText = "left:"+hearts[i].x+"px;top:"+hearts[i].y+"px;opacity:"+hearts[i].alpha+";transform:scale("+hearts[i].scale+","+hearts[i].scale+") rotate(45deg);background:"+hearts[i].color;
+				}
+				requestAnimationFrame(gameloop);
+			}
+			function attachEvent(){
+				var old = typeof window.onclick==="function" && window.onclick;
+				window.onclick = function(event){
+					old && old();
+					createHeart(event);
+				}
+			}
+			function createHeart(event){
+				var d = document.createElement("div");
+				d.className = "heart";
+				hearts.push({
+					el : d,
+					x : event.clientX - 5,
+					y : event.clientY - 5,
+					scale : 1,
+					alpha : 1,
+					color : randomColor()
+				});
+				document.body.appendChild(d);
+			}
+			function css(css){
+				var style = document.createElement("style");
+				style.type="text/css";
+				try{
+					style.appendChild(document.createTextNode(css));
+				}catch(ex){
+					style.styleSheet.cssText = css;
+				}
+				document.getElementsByTagName('head')[0].appendChild(style);
+			}
+			function randomColor(){
+				return "rgb("+(~~(Math.random()*255))+","+(~~(Math.random()*255))+","+(~~(Math.random()*255))+")";
+			}
+		})(window,document);
+
+	</script>   
+ </body>
+</html>

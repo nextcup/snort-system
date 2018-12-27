@@ -1,0 +1,228 @@
+<html>
+ <head></head>
+ <body>
+  {% load staticfiles %}    
+  <meta charset="UTF-8" /> 
+  <title></title> 
+  <link rel="stylesheet" href="{% static 'css/amazeui.min.css' %}" /> 
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" /> 
+  <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script> 
+  <script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>   
+  <div class="admin-content-body"> 
+   <div class="am-cf am-padding am-padding-bottom-0"> 
+    <div class="am-fl am-cf">
+     <strong class="am-text-primary am-text-lg"></strong>日志概要
+     <small></small>
+    </div> 
+   </div> 
+   <p> </p> 
+   <hr /> 
+   <div class="am-g"> 
+   </div> 
+   <p></p> 
+   <p></p> 
+   <div class="am-u-sm-12 am-u-md-6"> 
+    <div class="am-btn-toolbar"> 
+     <div class="am-btn-group am-btn-group-xs"> 
+      <button type="button" id="del" class="am-btn am-btn-default" onclick="delete()"><span class="am-icon-close"></span> 删除</button> 
+     </div> 
+    </div> 
+   </div> 
+   <div class="am-g"> 
+    <div class="am-u-sm-12"> 
+     <form class="am-form"> 
+      <table class="am-table am-table-striped am-table-hover table-main"> 
+       <thead> 
+        <tr> 
+         <th nowrap="nowrap" class="table-check"><input type="checkbox" name="check" id="all" onclick="checkOrCancelAll();" /><span id="mySpan">全选</span></th> 
+         <th nowrap="nowrap" class="table-id" style="color: green">规则ID</th> 
+         <th nowrap="nowrap" class="table-action" style="color: green">动作</th> 
+         <th nowrap="nowrap" class="table-status" style="color: green">详细信息</th> 
+         <th nowrap="nowrap" class="table-person" style="color: green">操作人</th> 
+         <th nowrap="nowrap" class="table-person" style="color: green">访问IP</th>
+         <th nowrap="nowrap" class="table-status" style="color: green">状态</th> 
+         <th nowrap="nowrap" class="table-time" style="color: green">时间</th> 
+         <th nowrap="nowrap" class="table-time" style="color: green">修改历史</th> 
+        </tr> 
+       </thead> 
+       <tbody>
+         {% for rule in rules_sections %} 
+        <tr> 
+         <td width="60px"><input type="checkbox" name="check" value="{{rule.id}}" /></td> 
+         <td width="180px">{{rule.sid}}</td> 
+         <td width="180px" nowrap="nowrap">{{rule.action}}</td> 
+         <td style="word-wrap:break-word;word-break:break-all;">{{rule.msg}}</td> 
+         <td width="180px" nowrap="nowrap">{{rule.person}}</td> 
+         <td width="180px" nowrap="nowrap">{{rule.ip}}</td> 
+         <td width="90px" nowrap="nowrap">{{rule.status}}</td> 
+         <td width="200px" nowrap="nowrap">{{rule.time}}</td> 
+         <td> <a href="javascript:void(0)" onclick="view('ID: '+'{{rule.sid}}'+' 规则历史修改记录',5,'{{rule.sid}}')">查看</a> </td> 
+        </tr> {% endfor %} 
+       </tbody> 
+      </table> 
+      <hr /> 
+      <!-- 分页开始 --> 
+      <div> 
+       <ul class="pagination"> 
+        <li><a href="/backstage/log/?page=1">首页</a></li> {% if rules_sections.has_previous %} 
+        <li><a href="/backstage/log/?page={{ rules_sections.previous_page_number }}">上一页</a></li> {% endif %} 
+        <li class=" "><span>第{{ rules_sections.number }}页 | 共{{ paginator.num_pages}}页</span></li> {% if rules_sections.has_next %} 
+        <li><a href="/backstage/log/?page={{ rules_sections.next_page_number }}">下一页</a></li> {% endif %} 
+        <li><a href="/backstage/log/?page={{ rules_sections.paginator.num_pages }}">尾页</a></li> 
+       </ul> 
+      </div> 
+      <!-- 分页结束 --> 
+     </form> 
+    </div> 
+   </div> 
+  </div> 
+  <script type="text/javascript" src="{% static 'js/jquery-1.11.3.min.js' %}"></script> 
+  <script type="text/javascript" src="{% static 'myplugs/js/plugs.js' %}"></script> 
+  <script type="text/javascript">
+    function sleep(d){
+                for(var t = Date.now();Date.now() - t <= d;);
+              }
+  </script>
+  <script type="text/javascript">
+            function remove(id){
+                // alert(id)
+                 $.post("/backstage/log/delete",{'id': id, 'csrfmiddlewaretoken':'{{csrf_token}}' } , function(data){
+                    if(data==1){
+                        location.replace('/backstage/log')
+                    }else{
+                        alert('删除失败!')
+                    }
+            });
+            }
+        </script> 
+  <script type="text/javascript">
+            $("#del").click(function(){
+                $.each($('input:checkbox'),function(){
+                    if(this.checked){
+                        id = $(this).val()
+                        remove(id)
+                    }
+                });
+            });
+        </script> 
+  <script type="text/javascript">
+            function view(title,id,sid){
+                detail(sid)
+                sleep(200);
+                $.jq_Panel({
+                title: title,
+                iframeWidth: 630,
+                iframeHeight: 700,
+                url: "/backstage/log/detail"
+            })
+            }
+        </script> 
+  <script type="text/javascript">
+            function detail(sid){
+                // alert(sid)
+                $.post("/backstage/log/detail",{'sid':sid,'csrfmiddlewaretoken':'{{csrf_token}}' } , function(){
+            });
+            }
+        </script> 
+  <script type="text/javascript">
+            //页面加载的时候,所有的复选框都是未选中的状态
+            function checkOrCancelAll(){
+                //1.获取checkbo的元素对象
+                var chElt=document.getElementById("all");
+                //2.获取选中状态
+                var checkedElt=chElt.checked;
+                //3.若checked=true,将所有的复选框选中,checked=false,将所有的复选框取消
+                var allCheck=document.getElementsByName("check");
+                //4.循环遍历取出每一个复选框中的元素
+                var mySpan=document.getElementById("mySpan");
+                // alert(mySpan)
+                if(checkedElt){
+                    //全选
+                    for(var i=0;i<allCheck.length;i++){
+                    //设置复选框的选中状态
+                        allCheck[i].checked=true;
+                    }
+                    mySpan.innerHTML="取消";
+                }else{
+                    //取消全选
+                    for(var i=0;i<allCheck.length;i++){
+                        allCheck[i].checked=false;
+                    }
+                mySpan.innerHTML="全选";
+                }
+            }
+        </script> 
+  <script type="text/javascript">
+                        //鼠标点击出现爱心特效
+        (function(window,document,undefined){
+            var hearts = [];
+            window.requestAnimationFrame = (function(){
+                return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback){
+                    setTimeout(callback,1000/60);
+                }
+            })();
+            init();
+            function init(){
+                css(".heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+                attachEvent();
+                gameloop();
+            }
+            function gameloop(){
+                for(var i=0;i<hearts.length;i++){
+                    if(hearts[i].alpha <=0){
+                        document.body.removeChild(hearts[i].el);
+                        hearts.splice(i,1);
+                        continue;
+                    }
+                    hearts[i].y--;
+                    hearts[i].scale += 0.004;
+                    hearts[i].alpha -= 0.013;
+                    hearts[i].el.style.cssText = "left:"+hearts[i].x+"px;top:"+hearts[i].y+"px;opacity:"+hearts[i].alpha+";transform:scale("+hearts[i].scale+","+hearts[i].scale+") rotate(45deg);background:"+hearts[i].color;
+                }
+                requestAnimationFrame(gameloop);
+            }
+            function attachEvent(){
+                var old = typeof window.onclick==="function" && window.onclick;
+                window.onclick = function(event){
+                    old && old();
+                    createHeart(event);
+                }
+            }
+            function createHeart(event){
+                var d = document.createElement("div");
+                d.className = "heart";
+                hearts.push({
+                    el : d,
+                    x : event.clientX - 5,
+                    y : event.clientY - 5,
+                    scale : 1,
+                    alpha : 1,
+                    color : randomColor()
+                });
+                document.body.appendChild(d);
+            }
+            function css(css){
+                var style = document.createElement("style");
+                style.type="text/css";
+                try{
+                    style.appendChild(document.createTextNode(css));
+                }catch(ex){
+                    style.styleSheet.cssText = css;
+                }
+                document.getElementsByTagName('head')[0].appendChild(style);
+            }
+            function randomColor(){
+                return "rgb("+(~~(Math.random()*255))+","+(~~(Math.random()*255))+","+(~~(Math.random()*255))+")";
+            }
+        })(window,document);
+
+        </script>  
+ </body>
+</html>

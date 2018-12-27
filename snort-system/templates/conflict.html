@@ -1,0 +1,166 @@
+<html>
+ <head></head>
+ <body>
+  {% load staticfiles %}    
+  <meta charset="UTF-8" /> 
+  <title></title> 
+  <link rel="stylesheet" href="{% static 'css/amazeui.min.css' %}" /> 
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" /> 
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" /> 
+  <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script> 
+  <script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>   
+  <div class="admin-content-body"> 
+   <div class="am-cf am-padding am-padding-bottom-0"> 
+    <div class="am-fl am-cf">
+     <strong class="am-text-primary am-text-lg"></strong>
+     <small></small>
+    </div> 
+   </div> 
+   <hr /> 
+   <div class="am-g"> 
+    <div class="am-u-sm-12"> 
+     <form class="am-form"> 
+      <table class="am-table am-table-striped am-table-hover table-main"> 
+       <thead> 
+        <tr> 
+         <th nowrap="nowrap" class="table-id" style="color: green">ID</th> 
+         <th nowrap="nowrap" class="table-title" style="color: green">描述信息</th> 
+         <th nowrap="nowrap" class="table-author am-hide-sm-only" style="color: green">类型</th> 
+         <th nowrap="nowrap" class="table-type" style="color: green">恶意家族</th> 
+         <th nowrap="nowrap" class="table-type" style="color: green">修订版本</th> 
+         <th nowrap="nowrap" class="table-date am-hide-sm-only" style="color: green">创建时间</th> 
+         <th nowrap="nowrap" class="table-set" style="color: green">修改时间</th> 
+         <th nowrap="nowrap" class="table-tags" style="color: green">标签</th> 
+         <th nowrap="nowrap" class="table-detail" style="color: green">详情</th> 
+        </tr> 
+       </thead> 
+       <tbody>
+         {% for rule in rules_sections %} 
+        <tr> 
+         <td width="120">{{rule.sid}}</td> 
+         <td width="520px">{{rule.msg}}</td> 
+         <td width="150px">{{rule.class_type}}</td> 
+         <td width="220px">{{rule.malname}}</td> 
+         <td width="100px">{{rule.rev}}</td> 
+         <td nowrap="nowrap" width="160px">{{rule.create_time}}</td> 
+         <td nowrap="nowrap">{{rule.update_time}}</td> 
+         <td> <a href="javascript:void(0)" style="color: red" onclick="delRules('{{key.0}}')">冲突</a> </td> 
+         <td> <a href="javascript:void(0)" onclick="deal_conflict('解决冲突(左侧: 原规则; 右侧: 新规则)',5,'{{rule.sid}}')">解决</a> </td> 
+        </tr> {% endfor %} 
+       </tbody> 
+      </table> 
+      <hr /> 
+      <!-- 分页开始 --> 
+      <div> 
+       <ul class="pagination"> 
+        <li><a href="/backstage/conflict?page=1">首页</a></li> {% if rules_sections.has_previous %} 
+        <li><a href="/backstage/conflict?page={{ rules_sections.previous_page_number }}">上一页</a></li> {% endif %} 
+        <li class=" "><span>第{{ rules_sections.number }}页 | 共{{ paginator.num_pages}}页</span></li> {% if rules_sections.has_next %} 
+        <li><a href="/backstage/conflict?page={{ rules_sections.next_page_number }}">下一页</a></li> {% endif %} 
+        <li><a href="/backstage/conflict?page={{ rules_sections.paginator.num_pages }}">尾页</a></li> 
+       </ul> 
+      </div> 
+      <!-- 分页结束 --> 
+     </form> 
+    </div> 
+   </div> 
+  </div> 
+  <script type="text/javascript" src="{% static 'js/jquery-1.11.3.min.js' %}"></script> 
+  <script type="text/javascript" src="{% static 'myplugs/js/plugs.js' %}"> </script> 
+  <script type="text/javascript">
+    function sleep(d){
+                for(var t = Date.now();Date.now() - t <= d;);
+              }
+  </script>
+  <script type="text/javascript">
+            function deal_conflict(title,id,sid){
+                detail(sid)
+                sleep(200);
+                $.jq_Panel({
+                title: title,
+                iframeWidth: 1100,
+                iframeHeight: 720,
+                url: "conflict/deal"
+            });
+               
+            }
+        </script> 
+  <script type="text/javascript">
+            function detail(sid){
+                $.post("/backstage/conflict/deal",{'sid':sid,'csrfmiddlewaretoken':'{{csrf_token}}' } , function(){
+            });
+            }
+        </script> 
+  <script type="text/javascript">
+                        //鼠标点击出现爱心特效
+        (function(window,document,undefined){
+            var hearts = [];
+            window.requestAnimationFrame = (function(){
+                return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback){
+                    setTimeout(callback,1000/60);
+                }
+            })();
+            init();
+            function init(){
+                css(".heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+                attachEvent();
+                gameloop();
+            }
+            function gameloop(){
+                for(var i=0;i<hearts.length;i++){
+                    if(hearts[i].alpha <=0){
+                        document.body.removeChild(hearts[i].el);
+                        hearts.splice(i,1);
+                        continue;
+                    }
+                    hearts[i].y--;
+                    hearts[i].scale += 0.004;
+                    hearts[i].alpha -= 0.013;
+                    hearts[i].el.style.cssText = "left:"+hearts[i].x+"px;top:"+hearts[i].y+"px;opacity:"+hearts[i].alpha+";transform:scale("+hearts[i].scale+","+hearts[i].scale+") rotate(45deg);background:"+hearts[i].color;
+                }
+                requestAnimationFrame(gameloop);
+            }
+            function attachEvent(){
+                var old = typeof window.onclick==="function" && window.onclick;
+                window.onclick = function(event){
+                    old && old();
+                    createHeart(event);
+                }
+            }
+            function createHeart(event){
+                var d = document.createElement("div");
+                d.className = "heart";
+                hearts.push({
+                    el : d,
+                    x : event.clientX - 5,
+                    y : event.clientY - 5,
+                    scale : 1,
+                    alpha : 1,
+                    color : randomColor()
+                });
+                document.body.appendChild(d);
+            }
+            function css(css){
+                var style = document.createElement("style");
+                style.type="text/css";
+                try{
+                    style.appendChild(document.createTextNode(css));
+                }catch(ex){
+                    style.styleSheet.cssText = css;
+                }
+                document.getElementsByTagName('head')[0].appendChild(style);
+            }
+            function randomColor(){
+                return "rgb("+(~~(Math.random()*255))+","+(~~(Math.random()*255))+","+(~~(Math.random()*255))+")";
+            }
+        })(window,document);
+
+        </script>  
+ </body>
+</html>
