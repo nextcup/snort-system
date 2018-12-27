@@ -68,4 +68,6 @@ PTD系统中包含一套用于入侵检测的snort规则，该规则平时的维
 该模块主要记录当前系统中的所有用户信息以及用户的操作记录，还会对系统异常进行记录以便于维护。
 ### 7. 关于
 该模块主要是对系统的功能进行了大致的描述，使初次使用该系统的用户对系统有个大致的了解。
-
+# 四、系统截图
+## 1. 注册
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/register.png)
