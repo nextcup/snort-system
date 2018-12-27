@@ -69,7 +69,7 @@ PTD系统中包含一套用于入侵检测的snort规则，该规则平时的维
 ### 7. 自动更新
 该系统每天0点自动更新规则到本系统，同步周期可通过config.ini配置文件进行配置，默认如下。用户可自行修改。
 ```shell
-file: confing.ini
+file: config.ini
 [update]
 ......          # 其他
 days = mon-sun  # 周一到周日（每天）
