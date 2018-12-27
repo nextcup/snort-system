@@ -97,7 +97,7 @@ minutes = 0     # 0分
 ![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/detail.png)
 ## 9. 关于
 ![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/about.png)
-## 一、说明
+## 五、说明
 ```python
 如有问题，联系zhangjiawei@antiy.cn
 ```
