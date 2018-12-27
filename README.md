@@ -71,3 +71,19 @@ PTD系统中包含一套用于入侵检测的snort规则，该规则平时的维
 # 四、系统截图
 ## 1. 注册
 ![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/register.png)
+## 2. 登陆
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/login.png)
+## 3. 后台
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/backstage.png)
+## 4. 未翻译
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/untranslate.png)
+## 5. 日志
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/log.png)
+## 6. 添加规则
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/add.png)
+## 7. 完整规则
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/complete.png)
+## 8. 特征详情
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/detail.png)
+## 9. 关于
+![Image text](https://raw.githubusercontent.com/TracyPro/snort-system/master/snort-system/images/about.png)
