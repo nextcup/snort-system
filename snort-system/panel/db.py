@@ -511,7 +511,8 @@ def record_log(sid, act, per, statu, ip, message):
     :param param2:  操作行为
     :param param3:  操作人
     :param param4:  操作状态
-    :param param5:  详细信息
+    :param param5:  访问IP
+    :param param6:  详细信息
     :return:        无
     """
     log_obj = Log.objects.create(
