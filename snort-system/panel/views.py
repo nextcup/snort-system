@@ -821,7 +821,7 @@ def syn_new_rule(sid, new_rule, user, ip):
     :param param1:  规则ID
     :param param2:  规则字符串
     :param param3:  当前登录用户
-    :return:        True:同步成功 FALSE:同步失败
+    :return:        True:同步成功 False:同步失败
     """
     try:
         rule_obj = CompleteRule.objects.create(sid=str(sid), rule=new_rule)
@@ -839,7 +839,7 @@ def syn_features(sid, receive_data, user, ip):
     :param param1:  规则ID
     :param param2:  前端返回字典数据(key:特征,value:具体值)
     :param param3:  当前登录用户
-    :return:        True:同步成功 FALSE:同步失败
+    :return:        True:同步成功 False:同步失败
     """
     if 'reference' in receive_data.keys():
         refs = receive_data['reference']
