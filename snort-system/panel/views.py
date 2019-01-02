@@ -410,6 +410,13 @@ class Xlsx(TemplateView):
     template_name = 'xlsx.html'
 
 
+class PcapUpload(TemplateView):
+    """
+    pcap上传界面
+    """
+    template_name = 'pcap_upload.html'
+
+
 def backstage(request):
     """
     :describe:  系统后台界面显示
@@ -1063,6 +1070,80 @@ def upload(request):
         result = upload_pcap(request, checked_rule)
         return HttpResponse(result)
     return HttpResponse("上传失败!")
+
+
+def check_pcap_rules(pcap_path):
+    cmd = './tool/test_tool ./all.rules ' + pcap_path + ' > ./result'
+    os.system(cmd)
+
+
+def read_result(result_path):
+    result_list = []
+    try:
+        with open(result_path) as f:
+            result_list = f.readlines()
+    except IOError:
+        print 'error:', e
+    if len(result_list) > 0:
+        index = len(result_list) - 1
+    else:
+        index = 0
+    return result_list[index]
+
+
+def judge_hit_rule(result):
+    if result == "":
+        return None
+    try:
+        sid_list = re.findall(r'hit rules\:(.+?):', result)
+    except Exception as e:
+        print 're find error:', e
+    if len(sid_list) == 0:
+        return None
+    return sid_list
+
+
+def get_hit_result(result_path):
+    tips = ""
+    result = read_result(result_path)
+    sid_list = judge_hit_rule(result)
+    if sid_list is None:
+        tips = '未命中任何规则!'
+    else:
+        tips = '命中%s号规则!' % (sid_list[0])
+    return tips
+
+
+def upload_pcap_hit_rule(request):
+    return_str = ""
+    myFile = request.FILES.get("myfile", None)
+    if not myFile:
+        return_str = "未选择文件!"
+        return return_str, ""
+    if not str(myFile).endswith('.pcap'):
+        return_str = "文件格式错误"
+        return return_str, ""
+    destination = open(os.path.join('./', myFile.name), 'wb+')
+    for chunk in myFile.chunks():
+        destination.write(chunk)
+    destination.close()
+    pcap_path = './' + myFile.name
+    return return_str, pcap_path
+
+
+@csrf_exempt
+def hit_pcap_rule(request):
+    return_str, pcap_path = upload_pcap_hit_rule(request)
+    if return_str != "":
+        return HttpResponse(return_str)
+    check_pcap_rules(pcap_path)
+    get_file_cmd = 'touch ./result'
+    os.system(get_file_cmd)
+    result_path = './result'
+    tips = get_hit_result(result_path)
+    cmd = 'rm -rf ./result'
+    os.system(cmd)
+    return HttpResponse(tips)
 
 
 def upload_pcap(request, checked_rule):
