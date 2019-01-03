@@ -5,18 +5,16 @@
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
-from django.core.paginator import Paginator
 from django.views.generic import TemplateView, ListView
 from django.http import StreamingHttpResponse
-from enum import Enum, unique
-from openpyxl import Workbook
 from update import *
-
-import hashlib
-import zipfile
-import random
-import commands
-import datetime
+from verify_pcap import *
+from time_range import *
+from features import *
+from xlsx import *
+from verify_rule import *
+from other import *
+from stor import *
 import json
 
 
@@ -62,7 +60,7 @@ class Show(ListView):
 
 class LogShow(ListView):
     """
-    日志展示 
+    日志展示
     """
     template_name = 'log.html'
     paginate_by = 10
@@ -107,7 +105,7 @@ class Untranslate(ListView):
     def get_queryset(self):
         """
         :param:  类对象
-        :return: 数据库中未翻译的规则集合实例  
+        :return: 数据库中未翻译的规则集合实例
         """
         rules_summary = Rule.objects.filter(is_translate='否')
         return rules_summary
@@ -136,7 +134,7 @@ class Untranslate(ListView):
 
 class ConflictShow(ListView):
     """
-    冲突列表展示 
+    冲突列表展示
     """
     template_name = 'conflict.html'
     paginate_by = 10
@@ -144,7 +142,7 @@ class ConflictShow(ListView):
     def get_queryset(self):
         """
         :param:  类对象
-        :return: 数据库中冲突的规则集合实例  
+        :return: 数据库中冲突的规则集合实例
         """
         rules = Rule.objects.filter(has_conflict='是')
         return rules
@@ -317,34 +315,6 @@ class UntransSearchResult(object):
         self.rules_summary = Rule.objects.filter(
             malname__contains=self.search_data, is_translate='否')
         return self.rules_summary
-
-
-@unique
-class Features(Enum):
-    """
-    特征枚举
-    """
-    sid = 0                                 # 规则ID
-    msg = 1                                 # 描述信息
-    reference = 2                           # 引用信息
-    class_type = 3                          # 类型
-    malname = 4                             # 家族名
-    attacker = 5                            # 攻击者
-    victim = 6                              # 受害者
-    success_attack = 7                      # 成功攻击
-    controller = 8                          # 控制源
-    confirm_controlled = 9                  # 确认被控
-    rev = 10                                # 修订版本
-    knowledge_base = 11                     # 知识库信息
-    shield = 12                             # 是否屏蔽
-    contain = 13                            # 出库包含
-    first_check_position = 14               # 首次检出位置
-    overall_first_check_position = 15       # 整体首次检出位置
-    check_out_numbers = 16                  # 检出个数
-    error_numbers = 17                      # 误报个数
-    feature_source = 18                     # 特征源
-    remarks = 19                            # 备注
-    content = 20                            # 匹配信息
 
 
 class Add(TemplateView):
@@ -601,39 +571,6 @@ def untrans_search(request):
     return HttpResponse(0)
 
 
-''' 获取时间范围: start end '''
-
-
-def get_start_end(date_str):
-    """
-    :describe:  获取时间范围: start end
-    :param      前端传来的时间字符串 2018-12-01 00:00:00 - 2019-01-31 00:00:00
-    :return:    start: 2018-12-01 00:00:00 end: 2019-01-31 00:00:00
-    """
-    if date_str == "":
-        return "", ""
-
-    start = datetime.datetime.strptime(
-        date_str.split(' - ')[0].strip(), "%Y-%m-%d %H:%M:%S")
-
-    end = datetime.datetime.strptime(
-        date_str.split(' - ')[1].strip(), "%Y-%m-%d %H:%M:%S")
-
-    return start, end
-
-
-def set_page_data(request, rules_summary):
-    """
-    :param param1:  http请求
-    :param param2:  查询结果
-    :return:        分页对象及数据
-    """
-    paginator = Paginator(rules_summary, 10)
-    page = request.GET.get('page', 1)
-    result = paginator.page(page)
-    return paginator, result
-
-
 def search_result(request):
     """
     :describe:  特征概要查询结果展示
@@ -707,48 +644,6 @@ def add_content(request):
     return HttpResponse(1)
 
 
-def get_receive_data(request):
-    receive_data = None
-    user = request.session["user_name"]
-    if request.method == "POST":
-        receive_data = request.POST.get('data')
-        receive_data = json.loads(receive_data)
-    receive_data = combina_content(receive_data)
-    if get_status() == "success":
-        receive_data.pop("content")
-    return receive_data, user
-
-
-def get_final_rule(request, sid):
-    sub_rule = ""
-    final_rule = ""
-    receive_data = None
-    no_loop_key = ['protocol', 'src_ip', 'src_port', 'dst_ip', 'dst_port']
-    receive_data, user = get_receive_data(request)
-    try:
-        rule_str = 'alert ' + receive_data["protocol"] + ' ' + receive_data["src_ip"] + ' ' + receive_data["src_port"] + ' -> ' + \
-            receive_data["dst_ip"] + ' ' + receive_data["dst_port"] + ' ('
-    except Exception as e:
-        print 'error:', e
-        return HttpResponse(0)
-    for k in no_loop_key:
-        receive_data.pop(k)
-    for key, val in receive_data.items():
-        if key == "msg" or key == "pcre":
-            sub_rule = sub_rule + key + ':"' + val + '";'
-        elif key == "content":
-            sub_rule = sub_rule + val
-        else:
-            sub_rule = sub_rule + key + ':' + val + ';'
-    final_rule = rule_str + sub_rule + 'sid:' + str(sid) + ';'
-    another_content = get_another_content_list()
-    if another_content is not None:
-        for val in another_content:
-            final_rule += val["content"]
-        final_rule += ')'
-    return final_rule, receive_data, user
-
-
 @csrf_exempt
 def add_submit(request):
     """
@@ -779,112 +674,11 @@ def add_submit(request):
     return HttpResponse(1)
 
 
-def get_add_content():
-    """
-    :describe:  获取新增content字段
-    :param      无
-    :return:    content拼接结果
-    """
-    new_content_str = ""
-    for val in get_another_content_list():
-        new_content_str += val["content"] + '\n'
-    return new_content_str
-
-
-def combina_content(data_dict):
-    """
-    :describe:  content及其选项组合
-    :param      前端返回字典数据
-    :return:    字典中content字段和选项字段组合为一个字段
-    """
-    options = ['offset', 'depth', 'nocase', 'distance', 'within']
-    option_str = ""
-    start_content = ""
-
-    for key, val in data_dict.items():
-        if key == 'content':
-            start_content = key + ':"' + val + '";'
-        elif key in options and val != "":
-            if key == "nocase" and val == "true":
-                option_str += key + ';'
-            elif key == "nocase" and val == "false":
-                pass
-            else:
-                option_str += key + ':' + val + ';'
-        else:
-            continue
-    data_dict["content"] = start_content + option_str
-    for val in options:
-        if val in data_dict.keys():
-            data_dict.pop(val)
-        else:
-            continue
-    return data_dict
-
-
-def syn_new_rule(sid, new_rule, user, ip):
-    """
-    :describe:      规则添加后同步规则入库
-    :param param1:  规则ID
-    :param param2:  规则字符串
-    :param param3:  当前登录用户
-    :return:        True:同步成功 False:同步失败
-    """
-    try:
-        rule_obj = CompleteRule.objects.create(sid=str(sid), rule=new_rule)
-        rule_obj.save()
-        record_log(str(sid), '新增规则', user, '成功', ip, '成功新增一条snort规则并且规则成功入库')
-        return True
-    except Exception as e:
-        record_log(str(sid), '新增规则', user, '失败', ip, '错误信息:%s' % (e))
-        return False
-
-
-def syn_features(sid, receive_data, user, ip):
-    """
-    :describe:      规则添加后同步特征入库
-    :param param1:  规则ID
-    :param param2:  前端返回字典数据(key:特征,value:具体值)
-    :param param3:  当前登录用户
-    :return:        True:同步成功 False:同步失败
-    """
-    if 'reference' in receive_data.keys():
-        refs = receive_data['reference']
-    else:
-        refs = ""
-    try:
-        rule_obj = Rule.objects.create(
-            sid=str(sid),
-            msg=receive_data["msg"],
-            reference=refs,
-            class_type=receive_data["classtype"],
-            malname=receive_data["classtype"] + '/Generic.' + str(sid),
-            attacker='',
-            victim='',
-            success_attack='',
-            controller='',
-            confirm_controlled='',
-            rev=receive_data["rev"],
-            create_time=get_date(),
-            update_time=get_date(),
-            is_translate='否',
-            content=get_add_content(),
-            has_conflict='否'
-        )
-        rule_obj.save()
-        record_log(str(sid), '新增规则后特征入库', user, '成功',
-                   ip, '成功新增一条snort规则并且特征成功入库')
-        return True
-    except Exception as e:
-        record_log(str(sid), '新增规则后特征入库', user, '失败', ip, '错误信息:%s' % (e))
-        return False
-
-
 @csrf_exempt
 def shield(request):
     """
     :describe: 规则屏蔽
-    :param:    http请求 
+    :param:    http请求
     :return:   响应值: 0:失败 1:成功
     """
     # 屏蔽指定规则
@@ -916,7 +710,7 @@ def shield(request):
 def get_ip(request):
     """
     :describe: 获取访问ip
-    :param:    http请求 
+    :param:    http请求
     :return:   ip地址
     """
     ip = None
@@ -931,7 +725,7 @@ def get_ip(request):
 def edit(request):
     """
     :describe: 规则特征修改
-    :param:    http请求 
+    :param:    http请求
     :return:   响应值: 0:失败 1:成功
     """
     # 弹窗显示规则指定字段,可编辑并保存
@@ -985,66 +779,6 @@ def edit(request):
     return HttpResponse(0)
 
 
-def compare(old_features, new_features, user, ip):
-    """
-    :describe:      记录被修改的特征字段
-    :param param1:  规则修改之前特征
-    :param param2:  规则修改之后特征
-    :param param3:  当前登录用户
-    :return:        无
-    """
-    set_default_env()
-    for k, v in old_features.items():
-        for enum_v in Features:
-            if k in str(enum_v):
-                if k == 'id' or k == 'rev':
-                    continue
-                if v != new_features[enum_v.value]:
-                    if v != "":
-                        record_log(new_features[0], '规则修改', user, '成功', ip, '%s字段由%s修改为%s' % (
-                            k, v, new_features[enum_v.value]))
-                    else:
-                        record_log(new_features[0], '规则修改', user, '成功', ip, '%s字段被设置为%s' % (
-                            k, new_features[enum_v.value]))
-                else:
-                    continue
-            else:
-                continue
-
-
-def write_check_rule(sid, rule):
-    """
-    :describe:      写入要被检测的规则到文件(ID命名)
-    :param param1:  规则ID
-    :param param2:  规则字符串
-    :return:        成功: 文件路径 失败: None
-    """
-    pcaps_dir = get_upload_path()
-    if not os.path.exists(pcaps_dir):
-        os.makedirs(pcaps_dir)
-
-    path = pcaps_dir + str(sid) + '.rules'
-
-    try:
-        with open(path, 'w') as f:
-            f.write(rule)
-            return path
-    except Exception as e:
-        print e
-        return None
-
-
-def stor_rule_pcap(sid, pcap):
-    """
-    :describe:      存储成功匹配的规则和pcap
-    :param param1:  规则ID
-    :param param2:  pcap文件
-    :return:        无
-    """
-    rule_obj = RulePcap.objects.create(sid=sid, pcap=pcap)
-    rule_obj.save()
-
-
 @csrf_exempt
 def upload(request):
     """
@@ -1072,78 +806,70 @@ def upload(request):
     return HttpResponse("上传失败!")
 
 
-def check_pcap_rules(pcap_path):
-    cmd = './tool/test_tool ./all.rules ' + pcap_path + ' > ./result'
-    os.system(cmd)
-
-
-def read_result(result_path):
-    result_list = []
-    try:
-        with open(result_path) as f:
-            result_list = f.readlines()
-    except IOError:
-        print 'error:', e
-    if len(result_list) > 0:
-        index = len(result_list) - 1
-    else:
-        index = 0
-    return result_list[index]
-
-
-def judge_hit_rule(result):
-    if result == "":
-        return None
-    try:
-        sid_list = re.findall(r'hit rules\:(.+?):', result)
-    except Exception as e:
-        print 're find error:', e
-    if len(sid_list) == 0:
-        return None
-    return sid_list
-
-
-def get_hit_result(result_path):
-    tips = ""
-    result = read_result(result_path)
-    sid_list = judge_hit_rule(result)
-    if sid_list is None:
-        tips = '未命中任何规则!'
-    else:
-        tips = '命中%s号规则!' % (sid_list[0])
-    return tips
-
-
-def upload_pcap_hit_rule(request):
-    return_str = ""
-    myFile = request.FILES.get("myfile", None)
-    if not myFile:
-        return_str = "未选择文件!"
-        return return_str, ""
-    if not str(myFile).endswith('.pcap'):
-        return_str = "文件格式错误"
-        return return_str, ""
-    destination = open(os.path.join('./', myFile.name), 'wb+')
-    for chunk in myFile.chunks():
-        destination.write(chunk)
-    destination.close()
-    pcap_path = './' + myFile.name
-    return return_str, pcap_path
-
-
 @csrf_exempt
 def hit_pcap_rule(request):
+    hit_rule_obj = GetHitRule()
     return_str, pcap_path = upload_pcap_hit_rule(request)
     if return_str != "":
         return HttpResponse(return_str)
     check_pcap_rules(pcap_path)
-    get_file_cmd = 'touch ./result'
-    os.system(get_file_cmd)
-    result_path = './result'
-    tips = get_hit_result(result_path)
-    cmd = 'rm -rf ./result'
-    os.system(cmd)
+    hit_rule_obj.touch_result_file()
+    tips = hit_rule_obj.get_hit_result()
+    hit_rule_obj.del_result_file()
     return HttpResponse(tips)
+
+
+@csrf_exempt
+def trans_submit(request):
+    """
+    :describe:  规则翻译
+    :param:     http请求
+    :return:    响应值 0:失败 1:成功
+    """
+    if request.method == 'GET':
+        return render_to_response('untranslate.html')
+
+    trans_msg = request.POST.get('msg')
+    rule_sid = get_trans_sid()
+    rule_obj = Rule.objects.get(sid=rule_sid)
+    Rule.objects.filter(sid=rule_sid).update(msg=trans_msg, is_translate='是')
+    user = request.session['user_name']
+    ip = get_ip(request)
+    set_default_env()
+    record_log(rule_sid, '规则翻译', user, '成功', ip,
+               '将%s翻译为%s' % (rule_obj.msg, trans_msg))
+
+    return HttpResponse(1)
+
+
+@csrf_exempt
+def download(request):
+    """
+    :describe:  规则导出
+    :param:     http请求
+    :return:    导出的文件对象
+    """
+    db_to_file()
+    extract_contain_feature()
+    generate_zip()
+    path = get_zip_path()
+
+    file = None
+    try:
+        file = open(path, 'rb')
+    except Exception as e:
+        print e
+        return HttpResponse('待导出文件打开出错')
+    response = StreamingHttpResponse(file)
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="rules.zip"'
+    user = request.session['user_name']
+    ip = get_ip(request)
+    set_default_env()
+    record_log('无', '规则导出', user, '成功', ip,
+               '导出文件为rules.zip,下载路径为%s' % (path))
+
+    return response
 
 
 def upload_pcap(request, checked_rule):
@@ -1177,115 +903,6 @@ def upload_pcap(request, checked_rule):
     stor_rule_pcap(get_id(), myFile)
     tips = '%s号规则与pcap包%s成功命中' % (get_id(), myFile)
     return tips
-
-
-@csrf_exempt
-def trans_submit(request):
-    """
-    :describe:  规则翻译
-    :param:     http请求
-    :return:    响应值 0:失败 1:成功
-    """
-    if request.method == 'GET':
-        return render_to_response('untranslate.html')
-
-    trans_msg = request.POST.get('msg')
-    rule_sid = get_trans_sid()
-    rule_obj = Rule.objects.get(sid=rule_sid)
-    Rule.objects.filter(sid=rule_sid).update(msg=trans_msg, is_translate='是')
-    user = request.session['user_name']
-    ip = get_ip(request)
-    set_default_env()
-    record_log(rule_sid, '规则翻译', user, '成功', ip,
-               '将%s翻译为%s' % (rule_obj.msg, trans_msg))
-
-    return HttpResponse(1)
-
-
-def generate_zip():
-    """
-    :describe:  压缩要下载的文件
-    :param:     无
-    :return:    无
-    """
-    file_list = []
-    path = get_download_path()
-    for root, dirs, files in os.walk(path, topdown=False):
-        for name in files:
-            if not name.endswith('.py') \
-                    and not name.endswith('.zip') \
-                    and not name.endswith('.xlsx'):
-                file_list.append(os.path.join(root, name))
-
-    f = zipfile.ZipFile(
-        path + 'rules.zip', 'w', zipfile.ZIP_DEFLATED)
-    for file in file_list:
-        f.write(file)
-    f.close()
-
-
-@csrf_exempt
-def download(request):
-    """
-    :describe:  规则导出
-    :param:     http请求
-    :return:    导出的文件对象
-    """
-    db_to_file()
-    extract_contain_feature()
-    generate_zip()
-    path = get_zip_path()
-
-    file = None
-    try:
-        file = open(path, 'rb')
-    except Exception as e:
-        print e
-        return HttpResponse('待导出文件打开出错')
-    response = StreamingHttpResponse(file)
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="rules.zip"'
-    user = request.session['user_name']
-    ip = get_ip(request)
-    set_default_env()
-    record_log('无', '规则导出', user, '成功', ip,
-               '导出文件为rules.zip,下载路径为%s' % (path))
-
-    return response
-
-
-def get_new_content(key):
-    """
-    :describe:  提取更新来的规则content字段
-    :param:     规则ID
-    :return:    拼接后的content字符串
-    """
-    content = []
-    content_str = ""
-    options = ['offset', 'depth', 'nocase', 'distance', 'within']
-    rule = UpdateRule.objects.get(sid=int(key)).rule
-    result = rule.split(';')
-    for val in result:
-        if 'content' in val:
-            content.append(val)
-        else:
-            [content.append(val) for v in options if v in val]
-    if len(content) == 0:
-        return ""
-    flag = False
-    for val in content:
-        val = val.strip()
-        if 'content' in val:
-            if flag is True:
-                content_str += '\n'
-                content_str += val + ';'
-            else:
-                content_str += val + ';'
-                flag = True
-        else:
-            content_str += val + ';'
-            flag = True
-    return content_str
 
 
 def deal(request):
@@ -1457,42 +1074,6 @@ def translate_show(request):
     return render_to_response('translate_rule.html')
 
 
-def has_chinese(pattern):
-    """
-    :describe:  判断是否包含中文
-    :param:     待判断字符串
-    :return:    True: 包含 False: 不包含
-    """
-    set_default_env()
-    for ch in pattern.decode('utf-8'):
-        if u'\u4e00' <= ch <= u'\u9fff':
-            return True
-    return False
-
-
-def random_sid():
-    """
-    :describe:  随机生成规则ID值(200万-300万)
-    :param:     无
-    :return:    生成的ID
-    """
-    sid = random.randint(2e6, 3e6)
-    return sid
-
-
-def encryption(clear_passwd, salt='snort'):
-    """
-    :describe:      密码加密(sha256算法)
-    :param param1:  明文密码
-    :param param2:  加密盐
-    :return:        加密后密码
-    """
-    hash_obj = hashlib.sha256()
-    clear_passwd += salt
-    hash_obj.update(clear_passwd.encode())
-    return hash_obj.hexdigest()
-
-
 @csrf_exempt
 def delete(request):
     """
@@ -1506,70 +1087,6 @@ def delete(request):
         return HttpResponse(1)
 
     return HttpResponse(0)
-
-
-def grant_auth():
-    """
-    :describe:  赋予可执行权限(规则检测工具、系统启动脚本)
-    :param:     无
-    :return:    无
-    """
-    cmd = 'chmod +x ./tool/*'
-    os.system(cmd)
-
-
-def set_so_env():
-    """
-    :describe:  设置规则检测工具依赖库环境变量
-    :param:     无
-    :return:    无
-    """
-    cmd = 'source ./tool/config.sh'
-    os.system(cmd)
-
-
-def rules_verify(rule):
-    """
-    :describe:  验证规则是否被支持
-    :param:     待验证规则文件
-    :return:    True:支持 False:不支持
-    """
-    grant_auth()
-    set_so_env()
-    cmd = './tool/test_tool ' + rule
-    result = commands.getstatusoutput(cmd)
-    # result = re.findall(r'end\\n(.+?)\'', str(result))
-    result = re.findall(r'Rule(.+?):', str(result))
-    if len(result) != 0:
-        if 'unsupported' in result[0]:
-            return False
-        else:
-            return True
-    else:
-        return True
-
-
-def is_hit(rule, pcap, user, ip):
-    """
-    :describe:      检测规则是否命中pcap
-    :param param1:  待检测规则文件
-    :param param2:  待检测pcap文件
-    :param param3:  当前登录用户 
-    :return:        True:命中 False:未命中
-    """
-    grant_auth()
-    set_so_env()
-    cmd = './tool/test_tool ' + rule + ' ' + pcap
-    result = commands.getstatusoutput(cmd)
-
-    set_default_env()
-    if 'hit rules' in str(result):
-        record_log(filter(str.isdigit, rule), '规则检测',
-                   user, '成功', ip, '%s成功命中规则%s' % (pcap, rule))
-        return True
-    record_log(filter(str.isdigit, rule), '规则检测',
-               user, '失败', ip, '%s未命中规则%s' % (pcap, rule))
-    return False
 
 
 @csrf_exempt
@@ -1623,105 +1140,3 @@ def time_export(request):
             rule_list.append(rule_obj.rule)
         write_time_export_rules(start, end, rule_list)
     return get_response()
-
-
-def export_time_range(pwd, rules_path, names_path):
-    """
-    :describe:      时间范围规则文件下载到本地
-    :param param1:  存储被导出的规则和特征文件目录
-    :param param2:  被导出规则文件全路径
-    :param param3:  被导出特征文件全路径
-    :return:        无
-    """
-    file_list = []
-    file_list.append(rules_path)
-    file_list.append(names_path)
-    path = pwd + 'rules.zip'
-    f = zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED)
-
-    for file in file_list:
-        f.write(file)
-    f.close()
-    file = None
-    try:
-        file = open(path, 'rb')
-    except Exception as e:
-        print 'error:', e
-        return HttpResponse('待导出文件打开出错')
-    response = StreamingHttpResponse(file)
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="rules.zip"'
-    set_response(response)
-    remove_zip_cmd = 'rm -rf ' + path
-    os.system(remove_zip_cmd)
-
-
-def write_time_export_rules(start, end, rule_list):
-    """
-    :describe:      时间范围内规则写入文件
-    :param param1:  开始日期
-    :param param2:  结束日期
-    :param param3:  在日期范围内规则列表
-    :return:        无
-    """
-    start = str(start).replace(" ", '_')
-    end = str(end).replace(" ", '_')
-    pwd = get_download_path() + start + end
-
-    if not os.path.exists(pwd):
-        os.mkdir(pwd)
-
-    rules_path = pwd + '/export.rules'
-    names_path = pwd + '/export'
-
-    for rule in rule_list:
-        try:
-            with open(rules_path, 'a+') as f:
-                f.write(rule + '\n')
-        except Exception as e:
-            print 'error:', e
-
-    extract_path = get_extract_path()
-    cmd = 'python ' + extract_path + ' --rule ' + pwd + ' --out ' + names_path
-    os.system(cmd)
-    # 压缩文件并下载
-    export_time_range(pwd, rules_path, names_path)
-    remove_dir_cmd = 'rm -rf ' + pwd
-    os.system(remove_dir_cmd)
-
-
-def write_data(path):
-    """
-    :describe:  写xlsx表格文件
-    :param:     xlsx表格文件存储路径
-    :return:    无
-    """
-    col_names = ['Sid', 'Msg1', 'Msg_ch', 'Msg2', '是否变种', '漏洞利用工具包', '威胁描述', '威胁分类', '恶意代码',
-                 '受害软件类型', '受害软件运行环境', '军火工具版本', '病毒名', '查找关键字', 'AVL引擎输出病毒名', '攻击者',
-                 '受害者', '控制源', '受控主机', '确认被控', '攻击成功', 'Classtype', 'Rev', 'Reference', 'line']
-    wb = Workbook()
-    ws = wb.active
-    for col in range(0, len(col_names)):
-        ws.cell(row=1, column=col + 1, value=col_names[col])
-
-    rule_obj = Rule.objects.filter(contain='是', is_translate='是')
-
-    row = 2
-    for rule in rule_obj:
-        complete_rule = CompleteRule.objects.get(sid=rule.sid)
-        ws.cell(row=row, column=1, value=rule.sid)                  # Sid
-        ws.cell(row=row, column=3, value=rule.msg)                  # Msg_ch
-        ws.cell(row=row, column=15, value=rule.malname)             # 病毒名
-        ws.cell(row=row, column=16, value=rule.attacker)            # 攻击者
-        ws.cell(row=row, column=17, value=rule.victim)              # 受害者
-        ws.cell(row=row, column=18, value=rule.controller)          # 控制源
-        ws.cell(row=row, column=20, value=rule.confirm_controlled)  # 确认被控
-        ws.cell(row=row, column=21, value=rule.success_attack)      # 攻击成功
-        ws.cell(row=row, column=22, value=rule.class_type)          # Classtype
-        ws.cell(row=row, column=23, value=rule.rev)                 # Rev
-        ws.cell(row=row, column=24, value=rule.reference)           # Reference
-        ws.cell(row=row, column=25, value=complete_rule.rule)       # 完成规则
-
-        row += 1
-
-    wb.save(path)
