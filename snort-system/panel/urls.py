@@ -49,5 +49,7 @@ urlpatterns = patterns(
     url(r'^backstage/log/detail$', log_detail, name='log_detail'),
     url(r'^backstage/add/content$', add_content, name='add_content'),
     url(r'^backstage/rules/export$', time_export, name='time_export'),
-    url(r'^backstage/rules/complete$', complete_show, name='complete_show')
+    url(r'^backstage/rules/complete$', complete_show, name='complete_show'),
+    url(r'^backstage/rules/custom/export$',
+        custom_export, name='custom_export'),
 )

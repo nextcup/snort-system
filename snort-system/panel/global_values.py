@@ -53,6 +53,12 @@ class Values(object):
     status = None
     response = None
 
+    custom_id_list = []
+
+
+def set_custom_id_list(id_list):
+    Values.custom_id_list = id_list
+
 
 def set_response(response):
     Values.response = response
@@ -308,3 +314,7 @@ def reset_content():
 
 def get_response():
     return Values.response
+
+
+def get_custom_id_list():
+    return Values.custom_id_list

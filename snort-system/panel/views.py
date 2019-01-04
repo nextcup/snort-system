@@ -15,6 +15,7 @@ from xlsx import *
 from verify_rule import *
 from other import *
 from stor import *
+from custom_export import *
 import json
 
 
@@ -1139,4 +1140,18 @@ def time_export(request):
             rule_obj = CompleteRule.objects.get(sid=rule.sid)
             rule_list.append(rule_obj.rule)
         write_time_export_rules(start, end, rule_list)
+    return get_response()
+
+
+@csrf_exempt
+def custom_export(request):
+    if request.method == "POST":
+        set_custom_id_list(request.POST.getlist('id_list'))
+    if request.method == "GET":
+        id_list = get_custom_id_list()
+        if "on" in id_list:
+            id_list.remove("on")
+        else:
+            pass
+        write_custom_export_rules(id_list)
     return get_response()
