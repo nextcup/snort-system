@@ -47,7 +47,7 @@
        <button type="button" class="am-btn am-btn-default" id="shield_id" onclick="shield()"><span class="am-icon-close"></span> 屏蔽</button> 
       </div>
       <div class="am-btn-group am-btn-group-xs"> 
-       <button type="button" class="am-btn am-btn-default" onclick="out()"><span class="am-icon-download"></span> 导出</button>
+       <button type="button" class="am-btn am-btn-default" id="out_id" onclick="out()"><span class="am-icon-download"></span> 导出</button>
       </div>
       <div class="am-btn-group am-btn-group-xs"> 
        <button type="button" class="am-btn am-btn-default" onclick="pcap_entry('查找命中的规则',5)"><span class="am-icon-upload"></span> pcap验证</button>
@@ -96,7 +96,7 @@
        <tbody>
          {% for rule in rules_sections %} 
         <tr> 
-         <td nowrap="nowrap" width="60"><input  type="checkbox" name="checkbox" value="{{rule.id}}" /></td> 
+         <td nowrap="nowrap" width="60"><input  type="checkbox" name="checkbox" id="ckb" value="{{rule.id}}" /></td> 
          <td width="80">{{rule.sid}}</td> 
          <td width="420px">{{rule.msg}}</td> 
          <td width="150px">{{rule.class_type}}</td> 
@@ -113,16 +113,16 @@
        </tbody> 
       </table> 
       <hr /> 
-      <!-- 分页开始 --> 
-      <div> 
-       <ul class="pagination"> 
-        <li><a href="/backstage/rules/result?page=1">首页</a></li> {% if rules_sections.has_previous %} 
-        <li><a href="/backstage/rules/result?page={{ rules_sections.previous_page_number }}">上一页</a></li> {% endif %} 
-        <li class=" "><span>第{{ rules_sections.number }}页 | 共{{ paginator.num_pages}}页</span></li> {% if rules_sections.has_next %} 
-        <li><a href="/backstage/rules/result?page={{ rules_sections.next_page_number }}">下一页</a></li> {% endif %} 
-        <li><a href="/backstage/rules/result?page={{ rules_sections.paginator.num_pages }}">尾页</a></li> 
-       </ul> 
-      </div> 
+      <!-- 分页开始 -->
+      <div>
+       <ul class="pagination">
+        <li><a href="/backstage/rules/result?page=1">首页</a></li> {% if rules_sections.has_previous %}
+        <li><a href="/backstage/rules/result?page={{ rules_sections.previous_page_number }}">上一页</a></li> {% endif %}
+        <li class=" "><span>第{{ rules_sections.number }}页 | 共{{ paginator.num_pages}}页</span></li> {% if rules_sections.has_next %}
+        <li><a href="/backstage/rules/result?page={{ rules_sections.next_page_number }}">下一页</a></li> {% endif %}
+        <li><a href="/backstage/rules/result?page={{ rules_sections.paginator.num_pages }}">尾页</a></li>
+       </ul>
+      </div>
       <!-- 分页结束 --> 
      </form> 
     </div> 
@@ -213,13 +213,17 @@
         </script> 
   <script type="text/javascript">
             $("#shield_id").click(function(){
+              flag = false
                 $.each($('input:checkbox'),function(){
                     if(this.checked){
                         id = $(this).val()
                         shield_rule(id)
-                        // alert(id)
+                        flag = true
                     }
                 });
+              if(flag==false){
+                alert('未选中任何规则!')
+              }
             });
         </script> 
   <script type="text/javascript">
@@ -326,34 +330,76 @@
         </script> 
   <script type="text/javascript">
     function out(){
+      flag = false
+      id_list = []
+        $.each($('input:checkbox'),function(){
+            if(this.checked){
+                id = $(this).val()
+                id_list.push(id)
+                console.log(id_list)
+                flag = true
+            }
+        });
+
       var txt = $(".am-form-field").val();
       var date_data=document.getElementById("test10");
       date_range = date_data.value
-      // alert(date_range)
-      if(date_range==""){
-        alert('请选择时间范围再导出!')
+
+      if(date_range=="" && flag==false){
+        alert('请选择时间范围或自定义选中再导出!')
         return
+      }else if(date_range!="" && flag==false){
+        $.post("/backstage/rules/export",
+          {
+              'date_range': date_range,
+              'csrfmiddlewaretoken': '{{csrf_token}}',
+          }
+        )
+        var form=$("<form>");
+        form.attr("style","display:none");
+        form.attr("method","get");
+        form.attr("action","/backstage/rules/export");
+        $("body").append(form);
+        form.submit();
+      }else if(date_range!="" && flag==true){
+        alert('请选择时间范围或自定义其中一项进行导出!')
+        return
+      }else if(date_range=="" && flag==true){
+        // alert('自定义导出!')
+        // alert(id_list)
+        // $.post("/backstage/rules/custom/export",
+        //   {
+        //       'id_list': id_list,
+        //       'csrfmiddlewaretoken': '{{csrf_token}}',
+        //       traditional:true,
+        //   }
+        // )
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/backstage/rules/custom/export",
+            traditional:true,  //加上此项可以传数组
+            dataType:'json',
+            async: false,
+            data:{'id_list':id_list},
+            success: function(data) {
+                if (data == 1) {
+                    alert('成功!')
+                }else if(data==0){
+                    alert('失败!')
+                }
+            }
+        });
+
+        var form=$("<form>");
+        form.attr("style","display:none");
+        form.attr("method","get");
+        form.attr("action","/backstage/rules/custom/export");
+        $("body").append(form);
+        form.submit();
       }
-      $.post("/backstage/rules/export",
-        {
-            'date_range': date_range,
-            'csrfmiddlewaretoken': '{{csrf_token}}',
-        }
-      )
-      var form=$("<form>");
-
-      form.attr("style","display:none");
-
-      form.attr("method","get");
-
-      form.attr("action","/backstage/rules/export");
-  
-      //将表单放置在页面(body)中
-      $("body").append(form);
-  
-      //表单提交
-      form.submit();
     }
+
   </script>
   <script type="text/javascript">
     function pcap_entry(title,id){
