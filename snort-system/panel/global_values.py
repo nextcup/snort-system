@@ -54,6 +54,11 @@ class Values(object):
     response = None
 
     custom_id_list = []
+    old_msg = ""
+
+
+def set_old_msg(msg):
+    Values.old_msg = msg
 
 
 def set_custom_id_list(id_list):
@@ -318,3 +323,7 @@ def get_response():
 
 def get_custom_id_list():
     return Values.custom_id_list
+
+
+def get_old_msg():
+    return Values.old_msg
