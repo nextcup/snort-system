@@ -30,7 +30,7 @@ def write_custom_export_rules(id_list):
     """
     pwd = get_download_path() + 'custom_export'
     if not os.path.exists(pwd):
-        os.mkdir(pwd)
+        os.makedirs(pwd)
 
     rules_path = pwd + '/export.rules'
     names_path = pwd + '/export'

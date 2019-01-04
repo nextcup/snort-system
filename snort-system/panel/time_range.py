@@ -39,7 +39,7 @@ def write_time_export_rules(start, end, rule_list):
     pwd = get_download_path() + start + end
 
     if not os.path.exists(pwd):
-        os.mkdir(pwd)
+        os.makedirs(pwd)
 
     rules_path = pwd + '/export.rules'
     names_path = pwd + '/export'
