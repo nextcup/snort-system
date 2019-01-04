@@ -48,7 +48,7 @@ class Values(object):
     pcap = ""
     content_list = []
     history_log = None
-    date_range = None
+    date_range = ""
     another_content_list = []
     status = None
     response = None
