@@ -831,6 +831,8 @@ def trans_submit(request):
         return render_to_response('untranslate.html')
 
     trans_msg = request.POST.get('msg')
+    if len(trans_msg.split()) == 0 or not has_chinese(trans_msg):
+        return HttpResponse(0)
     rule_sid = get_trans_sid()
     rule_obj = Rule.objects.get(sid=rule_sid)
     Rule.objects.filter(sid=rule_sid).update(msg=trans_msg, is_translate='是')
@@ -1072,7 +1074,8 @@ def translate_show(request):
     """
     if request.method == 'POST':
         set_trans_sid(request.POST.get('sid'))
-    return render_to_response('translate_rule.html')
+        set_old_msg(Rule.objects.get(sid=str(get_trans_sid())).msg)
+    return render_to_response('translate_rule.html', {'old_msg': get_old_msg()})
 
 
 @csrf_exempt
