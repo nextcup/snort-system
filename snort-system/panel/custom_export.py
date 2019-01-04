@@ -9,6 +9,11 @@ from django.http import StreamingHttpResponse
 
 
 def get_custom_export_rule(id_list):
+    """
+    :describe:      获取自定义导出的规则
+    :param param1:  规则id列表
+    :return:        规则列表
+    """
     rule_list = []
     for sid in id_list:
         rule_obj = Rule.objects.get(id=int(sid))
@@ -18,6 +23,11 @@ def get_custom_export_rule(id_list):
 
 
 def write_custom_export_rules(id_list):
+    """
+    :describe:      将待导出规则写入临时文件
+    :param param1:  规则id列表 
+    :return:        无
+    """
     pwd = get_download_path() + 'custom_export'
     if not os.path.exists(pwd):
         os.mkdir(pwd)
@@ -43,6 +53,13 @@ def write_custom_export_rules(id_list):
 
 
 def export_custom(pwd, rules_path, names_path):
+    """
+    :describe:      导出到本地
+    :param parma1:  临时规则文件存储目录 
+    :param param2:  临时规则文件存储路径
+    :param param3:  临时规则特征文件存储路径 
+    :return:        导出的规则文件
+    """
     file_list = []
     file_list.append(rules_path)
     file_list.append(names_path)

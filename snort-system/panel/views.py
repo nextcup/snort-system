@@ -1145,6 +1145,11 @@ def time_export(request):
 
 @csrf_exempt
 def custom_export(request):
+    """
+    :describe:  自定义规则导出
+    :param:     http请求
+    :return:    导出的文件对象
+    """
     if request.method == "POST":
         set_custom_id_list(request.POST.getlist('id_list'))
     if request.method == "GET":
