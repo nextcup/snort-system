@@ -44,12 +44,16 @@ def write_time_export_rules(start, end, rule_list):
     rules_path = pwd + '/export.rules'
     names_path = pwd + '/export'
 
-    for rule in rule_list:
-        try:
-            with open(rules_path, 'a+') as f:
-                f.write(rule + '\n')
-        except Exception as e:
-            print 'error:', e
+    if len(rule_list) == 0:
+        fp = open(rules_path, 'a+')
+        fp.close()
+    else:
+        for rule in rule_list:
+            try:
+                with open(rules_path, 'a+') as f:
+                    f.write(rule + '\n')
+            except Exception as e:
+                print 'error:', e
 
     extract_path = get_extract_path()
     cmd = 'python ' + extract_path + ' --rule ' + pwd + ' --out ' + names_path
