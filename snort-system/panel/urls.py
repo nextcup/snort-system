@@ -52,4 +52,6 @@ urlpatterns = patterns(
     url(r'^backstage/rules/complete$', complete_show, name='complete_show'),
     url(r'^backstage/rules/custom/export$',
         custom_export, name='custom_export'),
+    url(r'^backstage/pcap/verify$', hit_pcap_rule, name='hit_pcap_rule'),
+    url(r'^backstage/upload/pcap$', PcapUpload.as_view())
 )
