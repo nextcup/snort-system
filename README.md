@@ -64,7 +64,7 @@
         
     2.3 规则预览
         一条完整规则的展示，并且会实时显示修改后的规则信息。例如：
-```python
+```
 alert tcp $EXTERNAL_NET any -> $SMTP_SERVERS 25 (msg:"BROWSER-PLUGINS Java Applet sql.DriverManager fakedriver exploit attempt"; flow:to_server,established; flowbits:isset,file.jar; file_data; content:"META-INF/services/java.sql.Driver"; fast_pattern:only; content:"Fakedriver"; nocase; metadata:policy balanced-ips drop, policy max-detect-ips drop, policy security-ips drop, service smtp; reference:bugtraq,58504; reference:cve,2013-1488; reference:url,osvdb.org/show/osvdb/91472; classtype:attempted-user; sid:26899; rev:4;)
 ```
     2.4 新增规则
