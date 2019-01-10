@@ -8,6 +8,7 @@ urlpatterns = patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^login/$', login, name='login'),
     url(r'^backstage/$', backstage, name='backstage'),
+    url(r'^backstage/progress$', ProgressBar.as_view()),
     url(r'^backstage/rules/$', Show.as_view()),
     url(r'^backstage/log/$', LogShow.as_view()),
     url(r'^backstage/about/$', About.as_view()),
@@ -53,5 +54,7 @@ urlpatterns = patterns(
     url(r'^backstage/rules/custom/export$',
         custom_export, name='custom_export'),
     url(r'^backstage/pcap/verify$', hit_pcap_rule, name='hit_pcap_rule'),
-    url(r'^backstage/upload/pcap$', PcapUpload.as_view())
+    url(r'^backstage/upload/pcap$', PcapUpload.as_view()),
+    url(r'^backstage/upload/local$', LocalRuleUpload.as_view()),
+    url(r'^backstage/local/import$', import_local_rule, name='import_local_rule')
 )
