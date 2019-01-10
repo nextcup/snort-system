@@ -24,7 +24,7 @@ import json
 
 class Show(ListView):
     """
-    规则概要展示
+    第三方规则概要展示
     """
     template_name = 'rules.html'
     paginate_by = 10
@@ -386,6 +386,20 @@ class PcapUpload(TemplateView):
     pcap上传界面
     """
     template_name = 'pcap_upload.html'
+
+
+class LocalRuleUpload(TemplateView):
+    """
+    pcap上传界面
+    """
+    template_name = 'local_upload.html'
+
+
+class ProgressBar(TemplateView):
+    """
+    上传进度
+    """
+    template_name = 'probar.html'
 
 
 def backstage(request):
@@ -1163,3 +1177,101 @@ def custom_export(request):
             pass
         write_custom_export_rules(id_list)
     return get_response()
+
+
+def upload_local_rule(request, rule_path):
+    """
+    :describe:  上传本地规则文件
+    :param:     http请求
+    :return:    上传结果信息,pcap路径
+    """
+    return_str = ""
+    myFile = request.FILES.get("myfile", None)
+
+    if not myFile:
+        return_str = "未选择文件!"
+        return return_str, ""
+
+    if not str(myFile).endswith('.rules'):
+        return_str = "文件格式错误"
+        return return_str, ""
+
+    destination = open(os.path.join(rule_path, myFile.name), 'wb+')
+    for chunk in myFile.chunks():
+        destination.write(chunk)
+    destination.close()
+    return return_str
+
+
+def get_local_rule_files(path):
+    """
+    :describe:  获取规则目录下所有规则文件
+    :param:     无
+    :return:    规则文件列表(内容为路径)
+    """
+    filenames = []
+    for root, dirs, files in os.walk(path):
+        for fn in files:
+            if root == path and fn[-6:] == ".rules":
+                filename = None
+                if root[-1] == '/':
+                    filename = root + fn
+                else:
+                    filename = root + '/' + fn
+                filenames.append(filename)
+    return filenames
+
+
+def local_rules_in(path):
+    """
+    :describe:      下载后规则写入数据库
+    :param param1:  无
+    :return:        无
+    """
+    # 读取规则,插入数据库
+    path_list = get_local_rule_files(path)
+    rules_sections = get_all_rules(path_list)
+
+    complete_rules = CompleteRule.objects.all()
+    complete_sid = [str(rule.sid) for rule in complete_rules]
+
+    for key, value in rules_sections.items():
+        if key not in complete_sid:
+            rule_obj = CompleteRule.objects.create(sid=key, rule=value)
+            rule_obj.save()
+        else:
+            # 判断冲突
+            judge_conflict(key)
+            continue
+
+    update_features(rules_sections, get_edited_rule_id())
+
+
+@csrf_exempt
+def import_local_rule(request):
+    rule_path = get_local_rules_path()
+    if not os.path.exists(rule_path):
+        os.makedirs(rule_path)
+
+    return_str = upload_local_rule(request, rule_path)
+    if return_str != "":
+        return HttpResponse(return_str)
+
+    # 导入系统
+    names_path = rule_path + 'names'
+    shell_path = get_extract_path()
+    cmd = 'python ' + shell_path + ' --rule ' + rule_path + ' --out ' + names_path
+    os.system(cmd)
+
+    try:
+        with open(names_path)as fp:
+            dict_data = json.load(fp)
+    except IOError:
+        dict_data = None
+        print 'Open names file failed!'
+
+    local_rules_in(rule_path)
+    insert(dict_data)
+    remove_cmd = 'rm -rf ' + rule_path
+    os.system(remove_cmd)
+    return StreamingHttpResponse('上传成功!')
