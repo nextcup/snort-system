@@ -46,6 +46,11 @@
       <div class="am-btn-group am-btn-group-xs"> 
        <button type="button" class="am-btn am-btn-default" id="shield_id" onclick="shield()"><span class="am-icon-close"></span> 屏蔽</button> 
       </div>
+      <!-- 本地导入 -->
+      <div class="am-btn-group am-btn-group-xs"> 
+       <button type="button" class="am-btn am-btn-default" id="out_id" onclick="local_in('上传本地规则',5)"><span class="am-icon-upload"></span> 导入</button>
+      </div>
+      <!-- 本地倒入end -->
       <div class="am-btn-group am-btn-group-xs"> 
        <button type="button" class="am-btn am-btn-default" id="out_id" onclick="out()"><span class="am-icon-download"></span> 导出</button>
       </div>
@@ -487,5 +492,29 @@
         })(window,document);
 
         </script>  
+        <script type="text/javascript">
+            function local_in(title,id){
+              $.jq_Panel({
+                    title: title,
+                    iframeWidth: 400,
+                    iframeHeight: 100,
+                    url: "/backstage/upload/local"
+                  }
+              )
+              // // 进度显示
+              // $.jq_Panel({
+              //       title: title,
+              //       iframeWidth: 400,
+              //       iframeHeight: 100,
+              //       url: "/backstage/progress"
+              //     }
+              // )
+              $.post("/backstage/local/import",
+                {
+                    'csrfmiddlewaretoken': '{{csrf_token}}',
+                }
+              )
+            }
+        </script>
  </body>
 </html>
