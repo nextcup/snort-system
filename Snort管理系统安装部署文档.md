@@ -41,7 +41,7 @@ vim mysite_nginx.conf
 ```
 
 ```
-修改下文中的最后一行，令server_name 10.20.15.204成为你自己的ip
+修改下文中的最后一行，令server_name 8.8.8.8成为你自己的ip
 # mysite_nginx.conf
 
 # the upstream component nginx needs to connect to
